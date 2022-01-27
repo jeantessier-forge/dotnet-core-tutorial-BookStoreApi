@@ -4,12 +4,14 @@ using MongoDB.Driver;
 
 namespace BookStoreApi.Services
 {
-    public class BooksService
+    public class BooksService : IDisposable
     {
         private readonly IMongoCollection<Book> _booksCollection;
+        private readonly ILogger<BooksService> _logger;
 
         public BooksService(
-            IOptions<BookStoreDatabaseSettings> bookStoreDatabaseSettings)
+            IOptions<BookStoreDatabaseSettings> bookStoreDatabaseSettings,
+            ILogger<BooksService> logger)
         {
             var mongoClient = new MongoClient(
                 bookStoreDatabaseSettings.Value.ConnectionString);
@@ -19,6 +21,9 @@ namespace BookStoreApi.Services
 
             _booksCollection = mongoDatabase.GetCollection<Book>(
                 bookStoreDatabaseSettings.Value.BooksCollectionName);
+
+            _logger = logger;
+            log("Initialized a BooksService");
         }
 
         public async Task<List<Book>> GetAsync() =>
@@ -35,5 +40,11 @@ namespace BookStoreApi.Services
 
         public async Task RemoveAsync(string id) =>
             await _booksCollection.DeleteOneAsync(x => x.Id == id);
+
+        public void Dispose() =>
+            log("Disposing of BooksService");
+
+        private void log(string message) =>
+            _logger.LogInformation(message);
     }
 }
