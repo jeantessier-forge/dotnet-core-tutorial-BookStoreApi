@@ -1,5 +1,6 @@
 using BookStoreApi.Models;
 using BookStoreApi.Services;
+using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,7 +8,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<BookStoreDatabaseSettings>(
     builder.Configuration.GetSection(BookStoreDatabaseSettings.SectionName));
 
-builder.Services.AddSingleton<BooksService>();
+var mongoConnectionString = builder.Configuration[BookStoreDatabaseSettings.SectionName + ":ConnectionString"];
+builder.Services.AddSingleton<MongoClient>(sp => new MongoClient(mongoConnectionString));
+
+builder.Services.AddScoped<BooksService>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(

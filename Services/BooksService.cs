@@ -10,12 +10,10 @@ namespace BookStoreApi.Services
         private readonly ILogger<BooksService> _logger;
 
         public BooksService(
+            MongoClient mongoClient,
             IOptions<BookStoreDatabaseSettings> bookStoreDatabaseSettings,
             ILogger<BooksService> logger)
         {
-            var mongoClient = new MongoClient(
-                bookStoreDatabaseSettings.Value.ConnectionString);
-
             var mongoDatabase = mongoClient.GetDatabase(
                 bookStoreDatabaseSettings.Value.DatabaseName);
 
